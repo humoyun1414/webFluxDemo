@@ -1,0 +1,4 @@
+databaseChangeLog:
+    - include:
+        file: changelog/create_book_table.xml
+        relativeToChangelogFile: true

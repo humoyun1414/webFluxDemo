@@ -1,0 +1,26 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: book-service
+
+  r2dbc:
+    url: r2dbc:postgres://localhost:5432/postgres
+    username: postgres
+    password: root777
+    properties:
+      schema: books
+  datasource:
+        driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    url: r2dbc:postgres://localhost:5432/postgres
+    user: postgres
+    password: root777
+    change-log: classpath:db.migration/db.changelog-master.yml
+    enabled: true
+    default-schema: books
+
+
+
