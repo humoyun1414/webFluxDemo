@@ -1,4 +1,10 @@
-package uz.humoyun.webfluxdemo2.model.request;
+package uz.humoyun.webfluxdemo.model.request;
 
-public record BookRequest(String author, String bookName, Double price) {
+import org.immutables.builder.Builder;
+
+public record BookRequest(String author, String name, Double price) {
+
+    @Builder.Constructor
+    public BookRequest {
+    }
 }

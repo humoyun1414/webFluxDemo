@@ -1,8 +1,9 @@
-package uz.humoyun.webfluxdemo2.domen;
+package uz.humoyun.webfluxdemo.domen;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -14,6 +15,15 @@ public class BookEntity {
     @LastModifiedDate private Instant lastModifiedDate;
     @Id private UUID id;
     private Double price;
+    @Version private Long version;
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 
     public String getAuthor() {
         return author;
@@ -61,5 +71,18 @@ public class BookEntity {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    @Override
+    public String toString() {
+        return "BookEntity{" +
+                "author='" + author + '\'' +
+                ", bookName='" + bookName + '\'' +
+                ", createdDate=" + createdDate +
+                ", lastModifiedDate=" + lastModifiedDate +
+                ", id=" + id +
+                ", price=" + price +
+                ", version=" + version +
+                '}';
     }
 }

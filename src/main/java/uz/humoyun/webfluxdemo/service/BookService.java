@@ -1,17 +1,15 @@
-package uz.humoyun.webfluxdemo2.service;
+package uz.humoyun.webfluxdemo.service;
 
-import ch.qos.logback.core.encoder.EchoEncoder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import uz.humoyun.webfluxdemo2.domen.BookEntity;
-import uz.humoyun.webfluxdemo2.model.BookDto;
-import uz.humoyun.webfluxdemo2.model.request.BookRequest;
-import uz.humoyun.webfluxdemo2.repository.BookRepository;
+import uz.humoyun.webfluxdemo.domen.BookEntity;
+import uz.humoyun.webfluxdemo.model.BookDto;
+import uz.humoyun.webfluxdemo.model.mapper.BookMapper;
+import uz.humoyun.webfluxdemo.model.request.BookRequest;
+import uz.humoyun.webfluxdemo.repository.BookRepository;
 
-import java.awt.print.Pageable;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -19,46 +17,42 @@ import java.util.UUID;
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final ObjectMapper objectMapper;
+    private final BookMapper bookMapper;
 
 
-    public BookService(final BookRepository bookRepository, final ObjectMapper objectMapper) {
+    public BookService(final BookRepository bookRepository) {
         this.bookRepository = bookRepository;
-        this.objectMapper = objectMapper;
+        this.bookMapper = BookMapper.INSTANCE;
     }
 
 
     public Mono<UUID> add(final BookRequest request) {
-        BookEntity entity = objectMapper.convertValue(request, BookEntity.class);
+        BookEntity bookEntity = bookMapper.toEntity(request);
 
-        return bookRepository.save(entity).map(BookEntity::getId);
+
+        return bookRepository.save(bookEntity).map(BookEntity::getId);
     }
 
     public Flux<BookDto> getAll(final Integer page, final Integer size) {
         return bookRepository.findAllBy(PageRequest.of(page, size))
-                .map(bookEntity -> objectMapper.convertValue(bookEntity, BookDto.class));
+                .map(bookMapper::toDto);
     }
 
     public Mono<BookDto> getById(final UUID id) {
         return bookRepository.findById(id).
                 switchIfEmpty(Mono.error(new NoSuchElementException("Argument not found by this id : " + id)))
-                .map(bookEntity ->
-                        objectMapper.convertValue(bookEntity, BookDto.class));
+                .map(bookMapper::toDto);
     }
 
-    public Mono<Void> update(final UUID id, final BookRequest request) {
+    public Mono<Void> update(final UUID id, final Long version, final BookRequest request) {
 
         return bookRepository
                 .findById(id)
                 .flatMap(bookEntity -> {
-                    try {
-                        BookEntity update = objectMapper.updateValue(bookEntity, request);
-                        return bookRepository.save(update);
-                    } catch (Exception e) {
-                        return Mono.error(new IllegalArgumentException(e));
-                    }
+                    bookEntity.setVersion(version);
+                    bookMapper.update(bookEntity, request);
+                    return bookRepository.save(bookEntity);
                 })
-                .map(o -> objectMapper.convertValue(o, BookDto.class))
                 .then();
 
     }
