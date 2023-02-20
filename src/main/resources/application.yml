@@ -11,6 +11,11 @@ eureka:
 spring:
   application:
     name: book-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
   config:
     import: optional:configserver:http://localhost:8082
@@ -28,18 +33,18 @@ spring:
 
 
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: root777
+    url: r2dbc:postgresql://${SPRING_DATASOURCE:localhost:5432}/postgres
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root777}
     properties:
       schema: books
   datasource:
     driver-class-name: org.postgresql.Driver
 
   liquibase:
-    url: jdbc:postgresql://localhost:5432/postgres
-    user: postgres
-    password: root777
+    url: jdbc:postgresql://${SPRING_DATASOURCE:localhost:5432}/postgres
+    user: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root777}
     change-log: classpath:db.migration/db.changelog-master.yml
     enabled: true
     default-schema: books
